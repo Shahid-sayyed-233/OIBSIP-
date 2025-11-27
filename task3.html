@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Converter</title>
+    
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+
+        .converter-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #3498db;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #convert-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        #convert-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+
+        .result-area p {
+            margin: 0;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        #result-display {
+            color: #e74c3c;
+            margin: 5px 0 0 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="converter-card">
+        <h1>Temperature Converter </h1>
+
+        <div class="input-group">
+            <label for="temperature">Enter Temperature:</label>
+            <input type="text" id="temperature" placeholder="e.g., 32 or 100">
+        </div>
+
+        <div class="input-group">
+            <label for="input-unit">Input Unit:</label>
+            <select id="input-unit">
+                <option value="celsius">Celsius (°C)</option>
+                <option value="fahrenheit">Fahrenheit (°F)</option>
+                <option value="kelvin">Kelvin (K)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="output-unit">Convert To:</label>
+            <select id="output-unit">
+                <option value="fahrenheit">Fahrenheit (°F)</option>
+                <option value="celsius">Celsius (°C)</option>
+                <option value="kelvin">Kelvin (K)</option>
+            </select>
+        </div>
+
+        <button id="convert-btn">Convert</button>
+
+        
+            <p>Result:</p>
+            <h2 id="result-display"></h2>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('convert-btn').addEventListener('click', convertTemperature);
+
+        function convertTemperature() {
+            const tempInput = document.getElementById('temperature');
+            const inputUnit = document.getElementById('input-unit').value;
+            const outputUnit = document.getElementById('output-unit').value;
+            const resultDisplay = document.getElementById('result-display');
+            const inputValue = tempInput.value;
+
+            let temperature = parseFloat(inputValue);
+
+            if (isNaN(temperature) || inputValue.trim() === "") {
+                resultDisplay.textContent = "Please enter a valid number!";
+                resultDisplay.style.color = '#e74c3c';
+                return;
+            }
+            
+            if (inputUnit === outputUnit) {
+                let unitSymbol = getUnitSymbol(outputUnit);
+                resultDisplay.textContent = `${temperature.toFixed(2)} ${unitSymbol}`;
+                resultDisplay.style.color = '#3498db';
+                return;
+            }
+
+            let tempInKelvin;
+
+            switch (inputUnit) {
+                case 'celsius':
+                    tempInKelvin = temperature + 273.15;
+                    break;
+                case 'fahrenheit':
+                    tempInKelvin = (temperature - 32) * (5 / 9) + 273.15;
+                    break;
+                case 'kelvin':
+                    tempInKelvin = temperature;
+                    break;
+            }
+
+            let convertedTemp;
+            let unitSymbol = getUnitSymbol(outputUnit);
+
+            switch (outputUnit) {
+                case 'celsius':
+                    convertedTemp = tempInKelvin - 273.15;
+                    break;
+                case 'fahrenheit':
+                    convertedTemp = (tempInKelvin - 273.15) * (9 / 5) + 32;
+                    break;
+                case 'kelvin':
+                    convertedTemp = tempInKelvin;
+                    break;
+            }
+            
+            resultDisplay.textContent = `${convertedTemp.toFixed(2)} ${unitSymbol}`;
+            resultDisplay.style.color = '#3498db';
+        }
+
+        function getUnitSymbol(unit) {
+            switch (unit) {
+                case 'celsius':
+                    return '°C';
+                case 'fahrenheit':
+                    return '°F';
+                case 'kelvin':
+                    return 'K';
+                default:
+                    return '';
+            }
+        }
+    </script>
+</body>
+</html>
