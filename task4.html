@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic JS Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .calculator {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+
+        #display {
+            width: 95%;
+            height: 60px;
+            background-color: #222;
+            color: white;
+            font-size: 2em;
+            text-align: right;
+            padding: 10px 5px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: #eee;
+            background-color: #555;
+        }
+
+        button:hover {
+            background-color: #777;
+        }
+        
+        .operator {
+            background-color: #ff9500;
+            color: white;
+        }
+        
+        .operator:hover {
+            background-color: #ffb74d;
+        }
+        
+        .clear {
+            background-color: #d33;
+        }
+        
+        .clear:hover {
+            background-color: #f55;
+        }
+        
+        .equal {
+            grid-column: span 2;
+            background-color: #4CAF50;
+        }
+        
+        .equal:hover {
+            background-color: #66BB6A;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div id="display">0</div>
+        
+        <div class="buttons">
+            <button class="clear">C</button>
+            <button class="operator">÷</button>
+            <button class="operator">×</button>
+            <button class="operator">-</button>
+            
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="operator">+</button>
+            
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+
+            <button>0</button>
+            <button>.</button>
+            <button class="equal">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const buttons = document.querySelectorAll('button');
+        let currentInput = '';
+        let result = null;
+        let lastOperator = null;
+        let waitingForSecondOperand = false;
+
+        function updateDisplay(value) {
+            display.textContent = value;
+        }
+
+        function resetCalculator() {
+            currentInput = '0';
+            result = null;
+            lastOperator = null;
+            waitingForSecondOperand = false;
+            updateDisplay('0');
+        }
+        
+        function inputDigit(digit) {
+            if (waitingForSecondOperand) {
+                currentInput = digit;
+                waitingForSecondOperand = false;
+            } else {
+                if (currentInput === '0' && digit !== '.') {
+                    currentInput = digit;
+                } else if (digit === '.' && currentInput.includes('.')) {
+                    return;
+                } else {
+                    currentInput += digit;
+                }
+            }
+            updateDisplay(currentInput);
+        }
+
+        function handleOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput);
+
+            if (result === null) {
+                result = inputValue;
+            } else if (lastOperator) {
+                const calculatedValue = performCalculation[lastOperator](result, inputValue);
+                result = calculatedValue;
+            }
+
+            waitingForSecondOperand = true;
+            lastOperator = nextOperator;
+            
+            if (nextOperator !== '=') {
+                updateDisplay(`${result}`);
+            } else {
+                updateDisplay(`${result}`);
+                lastOperator = null;
+            }
+        }
+
+        const performCalculation = {
+            '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
+            '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
+            '×': (firstOperand, secondOperand) => firstOperand * secondOperand,
+            '÷': (firstOperand, secondOperand) => firstOperand / secondOperand,
+        };
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const target = event.target;
+                const value = target.textContent;
+                
+                if (target.classList.contains('clear')) {
+                    resetCalculator();
+                    return;
+                }
+
+                if (target.classList.contains('operator') || target.classList.contains('equal')) {
+                    handleOperator(value === '=' ? '=' : value);
+                    return;
+                }
+
+                inputDigit(value);
+            });
+        });
+
+        updateDisplay('0');
+    </script>
+</body>
+</html>
