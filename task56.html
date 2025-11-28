@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced To-Do List App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        #new-task {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        #add-btn {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        #add-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .task-lists-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .task-list {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: 200px;
+        }
+
+        #pending-tasks-section {
+            background-color: #ecf0f1;
+        }
+
+        #completed-tasks-section {
+            background-color: #e6f7ff;
+        }
+
+        .task-list h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            background-color: #d4edda;
+            text-decoration: line-through;
+        }
+
+        .task-info {
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .task-info .text {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .task-info .timestamp {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            display: block;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 1.1em;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .action-complete {
+            color: #27ae60;
+        }
+
+        .action-delete {
+            color: #e74c3c;
+        }
+
+        .action-edit {
+            color: #f39c12;
+        }
+
+        .task-actions button:hover {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Daily Task Tracker</h1>
+
+        <div class="task-input">
+            <input type="text" id="new-task" placeholder="Add a new task...">
+            <button id="add-btn">Add Task</button>
+        </div>
+
+        <div class="task-lists-container">
+            
+            <div id="pending-tasks-section" class="task-list">
+                <h2>⏳ Pending Tasks</h2>
+                <ul id="pending-list">
+                </ul>
+            </div>
+
+            <div id="completed-tasks-section" class="task-list">
+                <h2>✅ Completed Tasks</h2>
+                <ul id="completed-list">
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        const newTaskInput = document.getElementById('new-task');
+        const addButton = document.getElementById('add-btn');
+        const pendingList = document.getElementById('pending-list');
+        const completedList = document.getElementById('completed-list');
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString();
+            const time = now.toLocaleTimeString();
+            return `${date} at ${time}`;
+        }
+        
+        function renderTasks() {
+            pendingList.innerHTML = '';
+            completedList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item' + (task.completed ? ' completed' : '');
+                li.dataset.id = task.id;
+
+                const taskInfo = document.createElement('div');
+                taskInfo.className = 'task-info';
+                
+                const taskText = document.createElement('span');
+                taskText.className = 'text';
+                taskText.textContent = task.text;
+                
+                const taskTimestamp = document.createElement('span');
+                taskTimestamp.className = 'timestamp';
+                
+                let timeInfo = `Added: ${task.createdAt}`;
+                if (task.completed && task.completedAt) {
+                    timeInfo += ` | Completed: ${task.completedAt}`;
+                }
+                taskTimestamp.textContent = timeInfo;
+                
+                taskInfo.appendChild(taskText);
+                taskInfo.appendChild(taskTimestamp);
+
+                const actions = document.createElement('div');
+                actions.className = 'task-actions';
+
+                if (!task.completed) {
+                    actions.innerHTML += `<button class="action-complete" onclick="toggleComplete('${task.id}')">✓</button>`;
+                }
+                
+                actions.innerHTML += `<button class="action-edit" onclick="editTask('${task.id}')">✎</button>`;
+
+                actions.innerHTML += `<button class="action-delete" onclick="deleteTask('${task.id}')">✕</button>`;
+                
+                li.appendChild(taskInfo);
+                li.appendChild(actions);
+
+                if (task.completed) {
+                    completedList.appendChild(li);
+                } else {
+                    pendingList.appendChild(li);
+                }
+            });
+        }
+
+        function addTask() {
+            const text = newTaskInput.value.trim();
+            if (text === '') return;
+
+            const newTask = {
+                id: Date.now().toString(),
+                text: text,
+                completed: false,
+                createdAt: getCurrentTime(),
+                completedAt: null
+            };
+
+            tasks.push(newTask);
+            newTaskInput.value = '';
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleComplete(id) {
+            const taskIndex = tasks.findIndex(t => t.id === id);
+            if (taskIndex > -1) {
+                const isCompleted = tasks[taskIndex].completed;
+                tasks[taskIndex].completed = !isCompleted;
+                tasks[taskIndex].completedAt = isCompleted ? null : getCurrentTime();
+                
+                tasks.sort((a, b) => a.completed - b.completed || b.id - a.id);
+                
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            const newText = prompt("Edit Task:", task.text);
+            
+            if (newText !== null && newText.trim() !== "" && newText.trim() !== task.text) {
+                task.text = newText.trim();
+                saveTasks();
+                renderTasks();
+            }
+        }
+        
+        addButton.addEventListener('click', addTask);
+        newTaskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        renderTasks();
+
+    </script>
+</body>
+</html>
